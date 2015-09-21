@@ -14,12 +14,9 @@ int main(void) {
 
 
 	while (should_run) {
-		printf("osh>");
+		printf("osh> ");
 		fflush(stdout);
 
-
-
-		return 0;
 
 	}
 
