@@ -40,10 +40,17 @@ void readcommand(size_t *args_size, int *need_to_wait, char **args) {
 	args[*args_size] = NULL;
 }
 
+void ChildProcess(int args_size, char **args) {
+	char str[MAX_LINE] = "/bin/";
+	strcat(str, args[0]);
+	execvp(str, args);
+}
+
 int main(void) {
 
 	char *args[MAX_LINE / 2 + 1];
 	int should_run = 1;
+	int status;
 
 
 	while (should_run) {
@@ -70,19 +77,12 @@ int main(void) {
 			return 1;
 		}
 		else if (pid == 0) { // child process
-			char str[MAX_LINE] = "/bin/";
-			strcat(str, args[0]);
-
-			//puts(str);
-			execvp(str, args);
+			ChildProcess(args_size, args);
 			exit(0);
-			
-		} else {
-			if (need_to_wait) wait(NULL);
-			
-			//printf("Child Complete\n");
 		}
-
+		if (need_to_wait) wait(&status);
+		
+		
 	}
 
 
