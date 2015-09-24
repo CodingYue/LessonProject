@@ -2,10 +2,21 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 #include <stdlib.h>
 
 #define MAX_HISTORY 1000
 #define MAX_LINE 80
+
+void proc_exit() {
+	int status;
+	pid_t pid;
+	while (1) {
+		pid = wait(NULL);
+		if (pid == 0) return;
+		if (pid == -1) return;
+	}
+}
 
 void readcommand(size_t *args_size, int *need_to_wait, char **args) {
 
@@ -35,6 +46,7 @@ void readcommand(size_t *args_size, int *need_to_wait, char **args) {
 }
 
 void ChildProcess(int args_size, char **args) {
+	//printf("child pid = %d\n", getpid());
 	char str[MAX_LINE] = "/bin/";
 	strcat(str, args[0]);
 	execvp(str, args);
@@ -46,16 +58,17 @@ char *history_command[MAX_HISTORY][MAX_LINE/2+1];
 
 int main(void) {
 
+	signal (SIGCHLD, proc_exit);
+
 	char *args[MAX_LINE / 2 + 1];
 	int should_run = 1;
 	int status;
 	int history_size = 0;
 
-	int need_to_wait = 1;
-
 	while (should_run) {
 
-		if (need_to_wait) wait(NULL);
+		int need_to_wait = 1;
+
 		printf("osh> ");
 		fflush(stdout);
 
@@ -63,7 +76,20 @@ int main(void) {
 
 		readcommand(&args_size, &need_to_wait, args);
 
+
 		if (args_size == 0) {
+			continue;
+		}
+		if (args_size == 1 && strcmp(args[0], "history") == 0) {
+			
+			for (int i = 0; i < history_size; ++i) {
+				printf("%d", i+1);
+				for (int j = 0; j < history_len[i]; ++j) {
+					printf(" %s", history_command[i][j]);
+				}
+				puts("");
+				fflush(stdout);
+			}
 			continue;
 		}
 		if (args_size == 1 && args[0][0] == '!') {
@@ -84,28 +110,11 @@ int main(void) {
 
 			if (which >= history_size) {
 				printf("No such command in history.\n");
-
 				fflush(stdout);
 				continue;
-			}
-			for (int i = 0; i < history_len[which]; ++i) {
-				printf("%s ", history_command[which][i]);
-			}
-			puts("");
-			fflush(stdout);
-			continue;
-		}
-		if (args_size == 1 && strcmp(args[0], "history") == 0) {
-			puts("FUCK");
-			for (int i = 0; i < history_size; ++i) {
-				printf("%d", i+1);
-				for (int j = 0; j < history_len[i]; ++j) {
-					printf(" %s", history_command[i][j]);
-				}
-				puts("");
-				fflush(stdout);
-			}
-			continue;
+			}		
+			args_size = history_len[which];
+			for (int i = 0; i < args_size; ++i) args[i] = history_command[which][i];
 		}
 		history_len[history_size] = args_size;
 		for (int i = 0; i < args_size; ++i) {
@@ -120,8 +129,13 @@ int main(void) {
 		args[args_size] = NULL;
 
 
+		//printf("need to wait = %d\n", need_to_wait);
+
 		//wait(NULL);
-		pid_t pid = fork(); 
+		
+		pid_t pid = fork();
+
+		pid_t childpid = -1;
 
 		if (pid < 0) {
 			fprintf(stderr, "Fork fail");
@@ -129,8 +143,13 @@ int main(void) {
 		}
 		else if (pid == 0) { // child process
 			ChildProcess(args_size, args);
+			exit(0);
 		}
-		
+		if (need_to_wait) {
+			waitpid(pid, &status, 0);
+			//puts("FUCK");
+			//fflush(stdout);
+		}
 	}
 
 
