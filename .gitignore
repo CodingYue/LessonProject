@@ -8,6 +8,9 @@
 !*/
 
 *.o
+*.pdf
+*.aux
+*.log
 
 .git/
 .DS_Store
