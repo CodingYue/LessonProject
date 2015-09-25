@@ -18,7 +18,9 @@ void proc_exit() {
 	}
 }
 
-void readcommand(size_t *args_size, int *need_to_wait, char **args) {
+int readcommand(char **args) {
+
+	int size = 0;
 
 	char buffer_str[MAX_LINE];
 	char *buffer = buffer_str;
@@ -31,9 +33,9 @@ void readcommand(size_t *args_size, int *need_to_wait, char **args) {
 
 			*buffer = 0;
 			if (strlen(buffer_str) != 0) {
-				args[*args_size] = malloc((1+strlen(buffer_str))*sizeof(char));
-				memcpy(args[*args_size], buffer_str, (1+strlen(buffer_str))*sizeof(char));
-				++(*args_size);
+				args[size] = malloc((1+strlen(buffer_str))*sizeof(char));
+				memcpy(args[size], buffer_str, (1+strlen(buffer_str))*sizeof(char));
+				++size;
 				buffer = buffer_str;
 			}
 			if (inputchr == '\n') break;
@@ -42,15 +44,13 @@ void readcommand(size_t *args_size, int *need_to_wait, char **args) {
 		*buffer = inputchr;
 		buffer++;
 	}
-
+	return size;
 }
 
 void ChildProcess(int args_size, char **args) {
-	//printf("child pid = %d\n", getpid());
 	char str[MAX_LINE] = "/bin/";
 	strcat(str, args[0]);
 	execvp(str, args);
-	fflush(stdout);
 }
 
 int history_len[MAX_HISTORY];
@@ -74,23 +74,14 @@ int main(void) {
 
 		size_t args_size = 0;
 
-		readcommand(&args_size, &need_to_wait, args);
+		args_size = readcommand(args);
 
 
 		if (args_size == 0) {
 			continue;
 		}
-		if (args_size == 1 && strcmp(args[0], "history") == 0) {
-			
-			for (int i = 0; i < history_size; ++i) {
-				printf("%d", i+1);
-				for (int j = 0; j < history_len[i]; ++j) {
-					printf(" %s", history_command[i][j]);
-				}
-				puts("");
-				fflush(stdout);
-			}
-			continue;
+		if (args_size == 1 && strcmp(args[0], "exit") == 0) {
+			break;
 		}
 		if (args_size == 1 && args[0][0] == '!') {
 			int which = 0;
@@ -102,9 +93,7 @@ int main(void) {
 				}
 				which = history_size-1;
 			} else {
-				for (int i = 1; i < strlen(args[0]); ++i) {
-					which = which * 10 + args[0][i] - '0';
-				}
+				sscanf(args[0]+1, "%d", &which);
 				--which;
 			}
 
@@ -116,11 +105,28 @@ int main(void) {
 			args_size = history_len[which];
 			for (int i = 0; i < args_size; ++i) args[i] = history_command[which][i];
 		}
+
+
+		if (args_size == 1 && strcmp(args[0], "history") == 0) {
+			
+			for (int i = 0; i < history_size; ++i) {
+				printf("%d", i+1);
+				for (int j = 0; j < history_len[i]; ++j) {
+					printf(" %s", history_command[i][j]);
+				}
+				puts("");
+				fflush(stdout);
+			}
+
+		}
+
 		history_len[history_size] = args_size;
 		for (int i = 0; i < args_size; ++i) {
 			history_command[history_size][i] = args[i];
 		}
 		history_size++;
+
+		if (args_size == 1 && strcmp(args[0], "history") == 0) continue;
 
 		if (args_size && strcmp(args[args_size-1], "&") == 0) {
 			--args_size;
@@ -128,14 +134,9 @@ int main(void) {
 		}
 		args[args_size] = NULL;
 
-
-		//printf("need to wait = %d\n", need_to_wait);
-
-		//wait(NULL);
 		
 		pid_t pid = fork();
 
-		pid_t childpid = -1;
 
 		if (pid < 0) {
 			fprintf(stderr, "Fork fail");
@@ -147,8 +148,6 @@ int main(void) {
 		}
 		if (need_to_wait) {
 			waitpid(pid, &status, 0);
-			//puts("FUCK");
-			//fflush(stdout);
 		}
 	}
 
