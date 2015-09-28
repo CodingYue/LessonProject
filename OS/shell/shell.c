@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -82,6 +83,23 @@ int main(void) {
 		}
 		if (args_size == 1 && strcmp(args[0], "exit") == 0) {
 			break;
+		}
+		if (strcmp(args[0], "cd") == 0) {
+			int result = chdir(args[1]);
+			if (result != 0) {
+				switch (errno) {
+					case ENOENT:
+						puts("The file does not exist.");
+						break;
+					case ENOTDIR:
+						puts("A component of path is not a directory.");
+						break;
+					case EACCES:
+						puts("Search permission is denied for one of the components of path.");
+						break;
+				}
+				fflush(stdout);
+			}
 		}
 		if (args_size == 1 && args[0][0] == '!') {
 			int which = 0;
