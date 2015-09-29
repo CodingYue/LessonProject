@@ -10,6 +10,8 @@ def solve(VX):
 	n = len(VX)
 	w = [0.0 for _ in range(5)]
 
+	#print VX[6]
+
 	ans = 0
 
 
@@ -36,18 +38,21 @@ def solve(VX):
 		if OK: break
 
 		for j in range(5):
-			w[j] += 0.5 * VX[i][j] * VX[i][5]
-
-
+			w[j] += VX[i][j] * VX[i][5] * 0.5
+		i=(i+1)%n
+		#print w
 		ans += 1
+
 	return ans
 
 FILE = open("ntumlone-hw1-hw1_15_train.dat.txt", "r")
 VX = []
 
 for line in FILE :
-	x = map(float, line.split(" "))
-	x.append(1)
+	t = map(float, line.split(" "))
+	x = [1]
+	for p in t:
+		x.append(p)
 	VX.append(x)
 
 sum = 0

@@ -11,6 +11,7 @@
 *.pdf
 *.aux
 *.log
+*.dat
 
 .git/
 .DS_Store
