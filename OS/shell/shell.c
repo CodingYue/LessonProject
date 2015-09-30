@@ -49,7 +49,7 @@ int readcommand(char **args) {
 }
 
 void ChildProcess(int args_size, char **args) {
-	char str[MAX_LINE] = "/bin/";
+	char str[MAX_LINE] = "";
 	strcat(str, args[0]);
 	execvp(str, args);
 }
@@ -70,7 +70,7 @@ int main(void) {
 
 		int need_to_wait = 1;
 
-		printf("osh> ");
+		printf("%s$ ", getwd(NULL));
 		fflush(stdout);
 
 		size_t args_size = 0;
