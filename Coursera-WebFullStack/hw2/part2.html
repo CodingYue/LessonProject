@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<head>
+
+	<script type="text/javascript">
+
+		var color_list = ["Blue", "Yellow", "Cyan", "Red", "Orange", "Brown","Green","Peach"];
+		console.log(color_list.length);
+		color_list.sort();
+
+		function contains(arr, value) {
+			for (var i = 0; i < color_list.length; ++i)
+				if (arr[i] == value) return true;
+			return false;
+		}
+
+		function RandomInt(x, y) {
+			return Math.floor(Math.random() * (y-x)) + x;
+		}
+
+		function check_guess(target, answer) {
+			if (target == answer) return 0;
+			if (!(contains(color_list, answer))) return -1;
+			if (answer < target) return 1;
+			return 2;
+		}
+
+		function do_game() {
+			var target = color_list[RandomInt(0, color_list.length)];
+			alert(target);
+
+			var round_cnt = 0;
+			
+			while (true) {
+				round_cnt++;
+				var str = "Color list : ";
+				for (var i = 0; i < color_list.length; ++i) 
+					str += color_list[i] + (i+1<color_list.length?", ":"");
+				var answer = prompt(str);
+				var result = check_guess(target, answer);
+				if (result == 0) { // correct
+					document.body.style.background = target;
+					alert("You are right! You took "+round_cnt+" guesses!");
+					return;
+				} else 
+				if (result == -1) { // not in array
+					alert("I don't recognize that color!");
+				} else
+				if (result == 1) {
+					alert("Your input is alphabetically lower than mine!");
+				} else {
+					alert("Your input is alphabetically higher than mine!");
+				}
+			}
+		}
+	</script>
+
+</head>
+
+<body onload="do_game();">
+	
+
+
+</body>

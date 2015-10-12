@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+
+	<script type="text/javascript">
+
+		var color_list = ["Blue", "Yellow", "Cyan", "Red", "Orange", "Brown","Green","Peach"];
+		console.log(color_list.length)
+
+		function RandomInt(x, y) {
+			return Math.floor(Math.random() * (y-x)) + x;
+		}
+
+		function do_game() {
+			var target = color_list[RandomInt(0, color_list.length)];
+			alert(target);
+			
+			while (true) {
+				var str = "Color list : ";
+				for (var i = 0; i < color_list.length; ++i) 
+					str += color_list[i] + (i+1<color_list.length?", ":"");
+				var ans = prompt(str);
+				if (ans == target) {
+					alert("Correct!");
+					return;
+				} else {
+					alert("Not Correct!");
+				}
+
+			}
+		}
+	</script>
+
+</head>
+
+<body onload="do_game();">
+	
+
+
+</body>
