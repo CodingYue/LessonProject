@@ -1,5 +1,6 @@
-/*   author : Yang Yue
- *   bit string from left to right increasing.
+/*
+ *	Author : Yang Yue
+ *	DES algorithm, CBC mode.
  */
 
 #include "des.h"
