@@ -361,14 +361,14 @@ ull block_cipher(ull inblock, ull key, int mode) {
 
 int getblocks(char *input, ull *block) {
 	int len = strlen(input);
-	assert(len % 8 == 0);
-	for (int i = 0; i < len; i += 8) {
-		block[i/8] = 0;
-		for (int j = i; j < i+8; ++j) {
-			block[i/8] = (block[i/8] << 8) + input[j];
+	assert(len % 64 == 0);
+	for (int i = 0; i < len; i += 64) {
+		block[i/64] = 0;
+		for (int j = i; j < i+64; ++j) {
+			block[i/64] = (block[i/64] << 1) + input[j] - '0';
 		}
 	}
-	return len / 8;
+	return len / 64;
 }
 
 const ull IV = 4071733403362795336ull;
@@ -416,10 +416,11 @@ int main(void) {
 	}
 
 	for (int i = 0; i < block_size; ++i) {
-		for (int j = 0; j < 8; ++j) {
-			output[i*8+j] = (char) (ou[i] >> (7-j) & 0xff);
+		for (int j = 63; j >= 0; --j) {
+			output[64*i+63-j] = (char) ((ou[i] >> j & 1) + '0');
 		}
 	}
+	printf("%s\n", output);
 
 	return 0;
 }
