@@ -359,21 +359,67 @@ ull block_cipher(ull inblock, ull key, int mode) {
 	return cryption(inblock, roundKey);
 }
 
+int getblocks(char *input, ull *block) {
+	int len = strlen(input);
+	assert(len % 8 == 0);
+	for (int i = 0; i < len; i += 8) {
+		block[i/8] = 0;
+		for (int j = i; j < i+8; ++j) {
+			block[i/8] = (block[i/8] << 8) + input[j];
+		}
+	}
+	return len / 8;
+}
+
+const ull IV = 4071733403362795336ull;
+
+void CBC_encryption(ull *inblock, ull *outblock, ull key, int block_size) {
+	ull now = IV;
+	for (int i = 0; i < block_size; ++i) {
+		outblock[i] = block_cipher(inblock[i] ^ now, key, encryption);
+		now = outblock[i];
+	}
+}
+
+void CBC_decryption(ull *inblock, ull *outblock, ull key, int block_size) {
+	for (int i = block_size-1; i >= 0; --i) {
+		ull now = 0;
+		if (i) {
+			now = outblock[i-1]; 
+		} else {
+			now = IV;
+		}
+		inblock[i] = block_cipher(outblock[i], key, decryption) ^ now;
+	}
+}
+
+char input[MAX_CONTEXT_LEN];
+char output[MAX_CONTEXT_LEN];
+ull blocks[2][MAX_CONTEXT_LEN/8];
 
 int main(void) {
 
+
+	ull *in = blocks[0], *ou = blocks[1];;
+
 	ull key = 0;
-	ull inblock = 0;
-	ull outblock = 0;
-	ull checkblock = 0;
+	int mode = 0;
+	gets(input);
+	scanf(" %llu %d", &key, &mode);
 
-	scanf("%llu %llu", &key, &inblock);
+	int block_size = getblocks(input, in);
 
-	outblock = block_cipher(inblock, key, encryption);
-	printf("encryption :\n key = %llu\n inblock = %llu\n outblock = %llu\n", key, inblock, outblock);
-	checkblock = block_cipher(outblock, key, decryption);
-	printf("decryption :\n key = %llu\n inblock = %llu\n outblock = %llu\n", key, outblock, checkblock);
+	if (mode == encryption) {
+		CBC_encryption(in, ou, key, block_size);
+	} else {
+		CBC_decryption(ou, in, key, block_size);
+	}
 
+	for (int i = 0; i < block_size; ++i) {
+		for (int j = 0; j < 8; ++j) {
+			output[i*8+j] = (char) (ou[i] >> (7-j) & 0xff);
+		}
+	}
 
 	return 0;
 }
