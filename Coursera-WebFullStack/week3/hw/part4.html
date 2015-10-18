@@ -1,0 +1,86 @@
+<!doctype html>
+<html><head>
+
+	<title> Matching Game By YY </title>
+	<style>
+		div {position : absolute; width: 500px; height: 500px;}
+		img {position: absolute;}
+		#rightSide { left: 500px; 
+            border-left: 1px solid black }
+	</style>
+
+	<script type="text/javascript">
+
+		var numberOfFaces = 5;
+
+
+		function nextLevel(event) {
+			event.stopPropagation();
+			numberOfFaces += 5;
+			deleteFaces();
+			generateFaces();
+		}
+
+		function generateFaces() {
+			var leftSide = document.getElementById("leftSide");
+			var rightSide = document.getElementById("rightSide");
+			for (var i = 0; i < numberOfFaces; ++i) {
+				var top_position = Math.floor(Math.random() * 400);
+				var left_position = Math.floor(Math.random() * 400);
+				var smile = document.createElement("img");
+				smile.src = "smile.png";		
+				smile.style.top = top_position + "px";
+				smile.style.left = left_position + "px";
+				leftSide.appendChild(smile);
+			}
+
+			leftSideCopy = leftSide.cloneNode(true);
+			leftSideCopy.removeChild(leftSideCopy.lastChild);
+			rightSide.appendChild(leftSideCopy);
+			
+
+			leftSide.lastChild.addEventListener("click", function() {nextLevel(event);});
+
+		}
+
+		function deleteFaces() {
+			var leftSide = document.getElementById("leftSide");
+			var rightSide = document.getElementById("rightSide");
+			while (leftSide.firstChild) {
+				leftSide.removeChild(leftSide.firstChild);
+			}
+			while (rightSide.firstChild) {
+				rightSide.removeChild(rightSide.firstChild);
+			}
+		}
+
+		function gameOver() {
+			var leftSide = document.getElementById("leftSide");
+			alert("Game Over! You are playing with " + numberOfFaces + " faces");
+			theBody.onclick = null;
+		    leftSide.lastChild.onclick = null;
+		    deleteFaces();
+		    numberOfFaces = 5;
+		    generateFaces();
+		}
+	</script>
+
+</head>
+
+<body id = "theBody" onload="generateFaces()">
+
+
+	<p>Click on the extra smiling face on the left.</p>
+	<div id = "leftSide">
+		
+	</div>
+	<div id = "rightSide">
+	</div>
+	<script>
+
+		var theBody = document.getElementById("theBody");
+		theBody.addEventListener("click", gameOver);
+	</script>
+</body>
+
+</html>

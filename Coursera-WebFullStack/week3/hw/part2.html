@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head>
+
+	<title> Matching Game By YY </title>
+	<style>
+		div {position : absolute; width: 500px; height: 500px;}
+		img {position: absolute;}
+		#rightSide { left: 500px; 
+            border-left: 1px solid black }
+	</style>
+
+	<script type="text/javascript">
+
+		var numberOfFaces = 5;
+
+		function generateFaces() {
+
+			var leftSide = document.getElementById("leftSide");
+//			var rightSide = document.getElementById("rightSide");
+			for (var i = 0; i < numberOfFaces; ++i) {
+				var top_position = Math.floor(Math.random() * 400);
+				var left_position = Math.floor(Math.random() * 400);
+				var smile = document.createElement("img");
+				smile.src = "smile.png";		
+				smile.style.top = top_position + "px";
+				smile.style.left = left_position + "px";
+				leftSide.appendChild(smile);
+			}
+		}
+
+	</script>
+
+</head>
+
+<body id = "theBody" onload = "generateFaces()">
+	<p>Click on the extra smiling face on the left.</p>
+	<div id = "leftSide">
+		
+	</div>
+	<div id = "rightSide">
+	</div>
+
+</body>
+
+</html>
