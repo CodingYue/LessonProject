@@ -359,16 +359,45 @@ ull block_cipher(ull inblock, ull key, int mode) {
 	return cryption(inblock, roundKey);
 }
 
-int getblocks(char *input, ull *block) {
+int getblocks(char *input, ull *block, int mode) {
+
+	/*
+	 *	input is bit string. 
+	 *	strlen(input) MUST be mutiple of 8 because we use char(8 bits) as input.
+	 *	return block[], each block denotes 64 bit string.
+	 */
+
 	int len = strlen(input);
-	assert(len % 64 == 0);
-	for (int i = 0; i < len; i += 64) {
-		block[i/64] = 0;
-		for (int j = i; j < i+64; ++j) {
-			block[i/64] = (block[i/64] << 1) + input[j] - '0';
-		}
+	assert(len % 8 == 0); 
+	memset(block, 0, sizeof block);
+
+
+
+	for (int i = 0; i < len; ++i) {
+		block[i/64] = (block[i/64] << 1) + input[i] - '0';
 	}
-	return len / 64;
+
+	// mode == decryption means that padding method is not needed.
+	if (mode == decryption) return len / 64;
+
+
+	/*
+	 *	PKCS5 padding algorithm.
+	 *	needed = length of 'BYTES' needed to be padded. (1 <= needed <= 8)
+	 *	eg. input =  FF FF FF FF FF FF FF FF FF
+	 *	after padding, output = FF FF FF FF FF FF FF FF FF 07 07 07 07 07 07 07
+	 *	needed = 0x07 
+	 *	if input'length is multiple of 64, needed = 8.
+	 */
+
+	int remain = len % 64;
+	int needed = 8-remain / 8;
+
+	for (int t = 0; t < needed; ++t) {
+		block[len/64] = (block[len/64] << 8) + needed;
+	}
+
+	return len / 64 + 1;
 }
 
 const ull IV = 4071733403362795336ull;
@@ -399,28 +428,77 @@ ull blocks[2][MAX_CONTEXT_LEN/8];
 
 int main(void) {
 
+	char key_path[111];
+	char input_path[111];
+	char output_path[111];
+	char buf[111];
 
-	ull *in = blocks[0], *ou = blocks[1];;
+	while (true) {
 
-	ull key = 0;
-	int mode = 0;
-	gets(input);
-	scanf(" %llu %d", &key, &mode);
+		printf("What do wanna do? (exit, encrypt, decrypt) : ");
+	
+		scanf("%s", buf);
 
-	int block_size = getblocks(input, in);
+		int mode = -1;
 
-	if (mode == encryption) {
-		CBC_encryption(in, ou, key, block_size);
-	} else {
-		CBC_decryption(ou, in, key, block_size);
-	}
-
-	for (int i = 0; i < block_size; ++i) {
-		for (int j = 63; j >= 0; --j) {
-			output[64*i+63-j] = (char) ((ou[i] >> j & 1) + '0');
+		if (strcmp(buf, "exit") == 0) {
+			break;
+		} else
+		if (strcmp(buf, "encrypt") == 0) {
+			mode = 0;
+		} else
+		if (strcmp(buf, "decrypt") == 0) {
+			mode = 1;
+		} else {
+			printf("Your command is wrong.\n");
+			continue;
 		}
-	}
-	printf("%s\n", output);
 
+		printf("Please show your key's path: ");
+		scanf("%s", key_path);
+		printf("Please show your input path: ");
+		scanf("%s", input_path);
+		printf("Please show your output path: ");
+		scanf("%s", output_path);
+
+		FILE *FILE_key = fopen(key_path,"r");
+		FILE *FILE_input = fopen(input_path,"r");
+		FILE *FILE_output = fopen(output_path,"w");
+	
+		ull *in = blocks[0], *ou = blocks[1];;
+
+		ull key = 0;
+		fscanf(FILE_input, "%s", input);
+
+		printf("%s\n", input);
+
+		fscanf(FILE_key, "%llu", &key);
+
+		int block_size = getblocks(input, in, mode);
+
+		if (mode == encryption) {
+			CBC_encryption(in, ou, key, block_size);
+		} else {
+			CBC_decryption(ou, in, key, block_size);
+		}
+
+		for (int i = 0; i < block_size; ++i) {
+			for (int j = 63; j >= 0; --j) {
+				output[64*i+63-j] = (char) ((ou[i] >> j & 1) + '0');
+			}
+		}
+
+		if (mode == decryption) {
+			int addedlen = ou[block_size-1] & 0xf; // last four bits denote the needed length.
+			//printf("%d\n", addedlen);
+			output[strlen(output) - addedlen * 8] = 0; // delete last addedlen * 8 bits.
+		}
+		fprintf(FILE_output, "%s\n", output);
+
+		fclose(FILE_output);
+		fclose(FILE_input);
+		fclose(FILE_key);
+
+	}
 	return 0;
 }
