@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{SimSun}
+\XeTeXlinebreaklocale ”zh”
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+\title{DES Report}
+\author{杨越 13307130265}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Summary}
+
+GCC : gcc version 5.2.0\\
+
+编译命令 : g++ -o des des.cpp -O2 -std=c++11\\
+执行命令 : ./des\\
+
+交互部分较为简, 先输入加密或是解密模式 (encrypt / decrypt)\\
+然后输入key, input, output的文件路径.\\
+key为64位的二进制串, input为一个长度为8的倍数的二进制串, output存于output.txt中\\
+
+经过测试加密后的密文解密之后和明文相同.
+
+\section{Algorithm Description}
+
+读入input后, 如果是encrypt模式, 需要padding, 以及将随机出来的IV放入第一个block中. \\
+
+padding使用PKCS5算法, 设要补的byte长度为v, 那么最后加上x个v.\\
+比如 input =  FF FF FF FF FF FF FF FF FF\\
+	after padding : FF FF FF FF FF FF FF FF FF 07 07 07 07 07 07 07\\
+
+如果input长度为64的倍数, 需要补8个bytes.\\
+decrypt模式下, 输出时只输出64位后的二进制串 (减去IV)\\
+
+
+\section{Detail}
+
+实现的细节在代码中都有注明. 大量采用位运算. 
+
+加密解密时按要求采用maxRound = 6.
+
+
+\end{document}

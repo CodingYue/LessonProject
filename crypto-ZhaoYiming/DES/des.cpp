@@ -2,7 +2,7 @@
  *	Author : Yang Yue
  *	DES algorithm, CBC mode.
  */
-
+ 
 #include "des.h"
 
 const int table_S[8][64] = {
@@ -372,7 +372,6 @@ int getblocks(char *input, ull *block, int mode) {
 	memset(block, 0, sizeof block);
 
 
-
 	for (int i = 0; i < len; ++i) {
 		block[i/64] = (block[i/64] << 1) + input[i] - '0';
 	}
@@ -403,7 +402,7 @@ int getblocks(char *input, ull *block, int mode) {
 const ull IV = 4071733403362795336ull;
 
 void CBC_encryption(ull *inblock, ull *outblock, ull key, int block_size) {
-	ull now = IV;
+	ull now = 0;
 	for (int i = 0; i < block_size; ++i) {
 		outblock[i] = block_cipher(inblock[i] ^ now, key, encryption);
 		now = outblock[i];
@@ -416,7 +415,7 @@ void CBC_decryption(ull *inblock, ull *outblock, ull key, int block_size) {
 		if (i) {
 			now = outblock[i-1]; 
 		} else {
-			now = IV;
+			now = 0;
 		}
 		inblock[i] = block_cipher(outblock[i], key, decryption) ^ now;
 	}
@@ -468,7 +467,17 @@ int main(void) {
 		ull *in = blocks[0], *ou = blocks[1];;
 
 		ull key = 0;
-		fscanf(FILE_input, "%s", input);
+		if (mode == decryption)
+			fscanf(FILE_input, "%s", input);
+		else {
+			/*
+			 *	IV assigned to first 64bits input string.
+			 */
+			for (int i = 0; i < 64; ++i) {
+				input[i] = (IV >> (63-i) & 1) + '0';
+			}
+			fscanf(FILE_input, "%s", input+64);
+		}
 
 		printf("%s\n", input);
 
@@ -492,8 +501,11 @@ int main(void) {
 			int addedlen = ou[block_size-1] & 0xf; // last four bits denote the needed length.
 			//printf("%d\n", addedlen);
 			output[strlen(output) - addedlen * 8] = 0; // delete last addedlen * 8 bits.
+
+			fprintf(FILE_output, "%s\n", output+64);
+		} else {
+			fprintf(FILE_output, "%s\n", output);
 		}
-		fprintf(FILE_output, "%s\n", output);
 
 		fclose(FILE_output);
 		fclose(FILE_input);
