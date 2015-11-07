@@ -16,9 +16,12 @@ class Server:
 		self.phiN = (self.P-1)*(self.Q-1)
 		self.N = self.P * self.Q
 		self.e = 65537
-		assert(self.phiN % self.e != 0)
 		self.d = self.gcd(self.e, self.phiN)[1]
 		self.d = ((self.d % self.phiN) + self.phiN) % self.phiN
+
+
+		assert(self.phiN % self.e != 0)
+		assert(self.d * self.e % self.phiN == 1)
 
 	def gcd(self, a, b):
 		if b == 0:
