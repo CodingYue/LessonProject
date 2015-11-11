@@ -26,7 +26,25 @@ print unpad(cipher.decrypt(ciphertext_cbc1.decode('hex'))[16:])
 cipher = AES.new(key_cbc.decode('hex'), mode=AES.MODE_CBC, IV=ciphertext_cbc2[:32].decode('hex'))
 print unpad(cipher.decrypt(ciphertext_cbc2.decode('hex'))[16:])
 
-secret = os.urandom(16)
 
-cipher = AES.new(key_ctr.decode('hex'), mode=AES.MODE_CTR, IV=ciphertext_ctr1[:32].decode('hex'), counter=lambda :secret)
-print cipher.decrypt(ciphertext_ctr1.decode('hex'))
+def ctr_decrypt(ciphertext, key):
+	iv = ciphertext[:32]
+	#print iv
+	cipher = AES.new(key.decode('hex'), AES.MODE_ECB)
+	plaintext = ""
+	for i in xrange(1, len(ciphertext) / 32+1):
+		iv_encrypt = cipher.encrypt(iv.decode('hex')).encode('hex')
+		block_size = min(len(ciphertext[i*32:]), 32)
+
+		iv_encrypt = iv_encrypt[0:block_size]
+		cipherblock = ciphertext[i*32:i*32+block_size]
+
+		plaintext += str(hex(int(iv_encrypt, 16) ^ int(cipherblock, 16)))[2:-1]
+		iv = str(hex(int(iv, 16)+1))[2:-1]
+	#	print iv
+
+	#print plaintext
+	return plaintext.decode('hex')
+
+print ctr_decrypt(ciphertext_ctr1, key_ctr)
+print ctr_decrypt(ciphertext_ctr2, key_ctr)
