@@ -69,7 +69,7 @@ class Server:
 
 
 if __name__ == "__main__":
-	server = Server(128)
+	server = Server(64)
 	client = Client(server.e, server.N)
 
 	key = random.randint(0, 2**64-1)
