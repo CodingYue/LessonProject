@@ -75,7 +75,7 @@ class UI(Tkinter.Frame):
 
 		self.file_opt = options = {}
 		options['defaultextension'] = '.*'
-		options['initialdir'] = os.getcwd()
+		options['initialdir'] = os.getcwd()+'/test'
 		options['parent'] = self.root
 		options['title'] = 'DES Files'
 
