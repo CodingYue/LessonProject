@@ -75,7 +75,7 @@ class UI(Tkinter.Frame):
 
 		self.file_opt = options = {}
 		options['defaultextension'] = '.*'
-		options['initialdir'] = os.getcwd()+'/test'
+		options['initialdir'] = os.getcwd()+'/../test'
 		options['parent'] = self.root
 		options['title'] = 'DES Files'
 
@@ -197,6 +197,6 @@ class UI(Tkinter.Frame):
 
 if __name__ == "__main__":
 	os.system("rm -rf des")
-	os.system("CXXFLAGS=-O2 make des")
+	os.system("g++ -O2 -o des des.cpp -std=c++11 ")
 	ui = UI()
 	ui.root.mainloop()

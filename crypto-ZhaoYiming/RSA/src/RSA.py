@@ -11,6 +11,11 @@ class Client:
 class Server:
 
 	def __init__(self, length):
+
+		'''
+			RSA Server
+		'''
+
 		self.P = self.genPrime(length)
 		self.Q = self.genPrime(length)
 		self.phiN = (self.P-1)*(self.Q-1)
@@ -24,6 +29,9 @@ class Server:
 		assert(self.d * self.e % self.phiN == 1)
 
 	def gcd(self, a, b):
+		'''
+			extended greatest command divisor
+		'''
 		if b == 0:
 			return [a, 1, 0]
 		ret = self.gcd(b, a % b)

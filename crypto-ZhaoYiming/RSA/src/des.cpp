@@ -140,6 +140,7 @@ ull str2ull(char *input) {
 	for (int i = 0; i < len; ++i) {
 		res = res * 10 + input[i]-'0';
 	}
+	return res;
 }
 
 ull boolstr2ull(bool *input, int len) { 
@@ -377,7 +378,7 @@ int getblocks(char *input, ull *block, int mode) {
 
 	int len = strlen(input);
 	assert(len % 8 == 0); 
-	memset(block, 0, sizeof block);
+	memset(block, 0, sizeof(block) * (len+10));
 
 
 	for (int i = 0; i < len; ++i) {
@@ -458,7 +459,7 @@ int main(int argc, char *argv[]) {
 	printf("%s\n", argv[1]);
 	printf("%s\n", argv[2]);
 	printf("%s\n", argv[3]);
-	printf("%d\n", argv[4]);
+	printf("%s\n", argv[4]);
 
 	int mode = -1;
 
