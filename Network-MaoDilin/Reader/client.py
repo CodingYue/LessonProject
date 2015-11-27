@@ -5,18 +5,19 @@ import socket
 
 class Client(object):
 
-
 	'''
 		Four bytes string message
 		First byte show what kind of operation.
 
-		0x00 Open Book / List Books.
-		0x01 Next / Previous Page
-		0x02 Next / Previous Chapter
-		0x03 Go to page
-		0x04 List bookmark / xor bookmark.
-		0x05 server will continue sending books' name.
-		0x06 shutdown.
+		0x00 List Books.
+		0x01 Open Book
+		0x02 Next Page
+		0x03 Previous Page
+		0x04 Go to page
+		0x05 List bookmark
+		0x06 xor bookmark.
+
+		0x08 shutdown.
 	'''
 
 	def __init__(self):
@@ -53,8 +54,15 @@ class Client(object):
 		self.text = self.sock.recv(2048)
 		print self.text
 
+	def listBookMark(self):
+		self.sock.send("05")
+		print self.sock.recv(2048)
+
+	def addOrDeleteBookmark(self, pageNumber):
+		self.sock.send("06"+str(pageNumber))
+
 	def shutdown(self):
-		self.sock.send("06")
+		self.sock.send("08")
 		self.sock.close()
 
 if __name__ == "__main__":
@@ -63,5 +71,5 @@ if __name__ == "__main__":
 	client.listBook()
 	client.openBook("a.txt")
 	client.nextPage()
-	
+	client.openBook("b.txt")
 	
