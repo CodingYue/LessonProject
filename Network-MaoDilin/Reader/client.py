@@ -27,14 +27,12 @@ class Client(object):
 
 	def listBook(self):
 		self.sock.send("00")
-		bookstr = self.sock.recv(2048).split()
-		print bookstr
+		self.bookList = self.sock.recv(2048).split()
 
 	def openBook(self, book):
 		self.sock.send("01" + book)
 		self.curPage = self.sock.recv(2048)
 		self.text = self.sock.recv(2048)
-		print self.text
 
 	def nextPage(self):
 		self.sock.send("02"+str(self.curPage))
@@ -49,17 +47,17 @@ class Client(object):
 		print self.text
 
 	def toPage(self, number):
-		self.text = self.sock.sned("04" + str(number))
+		self.text = self.sock.send("04" + str(number))
 		self.curPage = self.sock.recv(2048)
 		self.text = self.sock.recv(2048)
 		print self.text
 
-	def listBookMark(self):
+	def listBookmark(self):
 		self.sock.send("05")
-		print self.sock.recv(2048)
+		self.bookmarkList = self.sock.recv(2048).split()
 
-	def addOrDeleteBookmark(self, pageNumber):
-		self.sock.send("06"+str(pageNumber))
+	def xorBookmark(self):
+		self.sock.send("06"+str(self.curPage))
 
 	def shutdown(self):
 		self.sock.send("08")
@@ -72,4 +70,4 @@ if __name__ == "__main__":
 	client.openBook("a.txt")
 	client.nextPage()
 	client.openBook("b.txt")
-	
+

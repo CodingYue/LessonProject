@@ -6,7 +6,7 @@ import socket
 class Interaction(object):
 	def __init__(self, client):
 		self.client = client
-		self.pageSize = 200
+		self.pageSize = 1000
 		self.pageList = []
 		self.pageHasBookmark = []
 
@@ -40,6 +40,7 @@ class Interaction(object):
 	def openBook(self, book):
 		FILE = open("books/" + book, "r")
 		text = FILE.read().decode("utf-8")
+		print text
 	#	print text
 		pageSize = 200
 
@@ -79,7 +80,7 @@ class Interaction(object):
 	def listBookmark(self):
 		bookmarkStr = " ".join([str(page) for page in xrange(len(self.pageHasBookmark)) if self.pageHasBookmark[page] == 1])
 		if bookmarkStr == "":
-			bookmarkStr = "None"
+			bookmarkStr = " "
 		self.client.send(bookmarkStr)
 		print bookmarkStr
 
