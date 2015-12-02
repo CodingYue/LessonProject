@@ -1,6 +1,6 @@
 CXX = g++
 
-SOURCES = main.cpp
+SOURCES = src/main.cpp
 OBJS = $(SOURCES:.cpp=.o)
 
 CXXFLAGS = -O2 `pkg-config --cflags opencv`
@@ -15,4 +15,4 @@ main: $(OBJS)
 all: main
 
 clean:
-	rm -rf *.o main
+	rm -rf src/*.o main
