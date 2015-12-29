@@ -27,37 +27,37 @@ class Client(object):
 
 	def listBook(self):
 		self.sock.send("00")
-		self.bookList = self.sock.recv(2048).split()
+		self.bookList = self.sock.recv(65536).split()
 
 	def openBook(self, book):
 		self.sock.send("01" + book)
-		self.curPage = self.sock.recv(2048)
-		self.text = self.sock.recv(2048)
+		self.text = self.sock.recv(65536)
 
 	def nextPage(self):
 		self.sock.send("02"+str(self.curPage))
-		self.curPage = self.sock.recv(2048)
-		self.text = self.sock.recv(2048)
-		print self.text
+		self.text = self.sock.recv(65536)
+		#print self.text
 
 	def previousPage(self):
 		self.sock.send("03"+str(self.curPage))
-		self.curPage = self.sock.recv(2048)
-		self.text = self.sock.recv(2048)
-		print self.text
+		self.text = self.sock.recv(65536)
+		#print self.text
 
 	def toPage(self, number):
-		self.text = self.sock.send("04" + str(number))
-		self.curPage = self.sock.recv(2048)
-		self.text = self.sock.recv(2048)
-		print self.text
+		self.sock.send("04" + str(number))
+		self.text = self.sock.recv(65536)
+		#print self.text
 
 	def listBookmark(self):
 		self.sock.send("05")
-		self.bookmarkList = self.sock.recv(2048).split()
+		self.bookmarkList = self.sock.recv(65536).split()
 
 	def xorBookmark(self):
 		self.sock.send("06"+str(self.curPage))
+
+	def curPage(self):
+		self.sock.send("09")
+		return self.recv(65536)
 
 	def shutdown(self):
 		self.sock.send("08")
@@ -67,7 +67,5 @@ if __name__ == "__main__":
 
 	client = Client()
 	client.listBook()
-	client.openBook("a.txt")
+	client.openBook("神雕侠侣1.txt")
 	client.nextPage()
-	client.openBook("b.txt")
-

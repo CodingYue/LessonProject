@@ -16,19 +16,20 @@ class UI(tk.Frame):
 		self.createhBookList()
 
 	def initialDisplay(self):
-		self.bookText.grid()
-		self.bookListbox.grid()
-		self.openBookButton.grid()
-		self.bookmarkListbox.grid()
-		self.xorBookmarkButton.grid()
-		self.nextPageButton.grid()
-		self.previousPageButton.grid()
-		self.toBookmarkPageButton.grid()
+		self.bookText.grid(row=1, column=0, columnspan=20)
+		self.bookListbox.grid(row=2,column=4, columnspan=4)
+		self.bookmarkListbox.grid(row=2, column=12, columnspan=4)
+
+		self.previousPageButton.grid(row=3, column=0, columnspan=4)
+		self.openBookButton.grid(row=3, column=4, columnspan=4)
+		self.nextPageButton.grid(row=3, column=8, columnspan=4)
+		self.xorBookmarkButton.grid(row=3, column=12, columnspan=4)
+		self.toBookmarkPageButton.grid(row=3, column=16, columnspan=4)
 
 	def createhBookList(self):
-	
+
 		self.client.listBook()
-		
+
 		for book in self.client.bookList:
 			self.bookListbox.insert(tk.END, book)
 
@@ -47,7 +48,7 @@ class UI(tk.Frame):
 		self.updateBookmark()
 
 	def createWidges(self):
-		
+
 		self.bookListbox = tk.Listbox(self)
 		self.bookmarkListbox = tk.Listbox(self)
 
@@ -58,15 +59,15 @@ class UI(tk.Frame):
 		self.nextPageButton = tk.Button(self, text=u"下一页", command = self.nextPage)
 		self.previousPageButton = tk.Button(self, text=u"上一页", command = self.previousPage)
 		self.xorBookmarkButton = tk.Button(self, text=u"加入/删除此页书签", command = self.xorBookmark)
-		self.openBookButton = tk.Button(self, text=u"阅读此书", 
+		self.openBookButton = tk.Button(self, text=u"阅读此书",
 			command = lambda : self.openBook(
 				self.client.bookList[self.bookListbox.curselection()[0]]))
-		self.toBookmarkPageButton = tk.Button(self, text=u"前往书签", 
+		self.toBookmarkPageButton = tk.Button(self, text=u"前往书签",
 			command = lambda: self.toPage(
 				self.client.bookmarkList[self.bookmarkListbox.curselection()[0]]
 				))
 
-		self.bookText = tk.Text(self, height=30, width = 130)
+		self.bookText = tk.Text(self, height=35, width = 130)
 		self.statusText = tk.Text(self, height=1, width=10)
 
 	def nextPage(self):
